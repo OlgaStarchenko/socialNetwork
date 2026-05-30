@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { App } from "./App.jsx";
 import "@radix-ui/themes/styles.css";
-import { Theme } from "@radix-ui/themes";
+import { Box, Theme } from "@radix-ui/themes";
 
 createRoot(document.getElementById("root")).render(
   <Theme
@@ -11,6 +11,8 @@ createRoot(document.getElementById("root")).render(
     panelBackground="solid"
     radius="large"
   >
-    <App />
+    <Box p={"3"}>
+      <App />
+    </Box>
   </Theme>,
 );
