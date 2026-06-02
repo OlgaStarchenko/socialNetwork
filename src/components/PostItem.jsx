@@ -23,7 +23,6 @@ export default function PostItem({ post }) {
 
   useEffect(() => {
     instance.get(`/users/${post.userId}`).then((res) => {
-      console.log(res.data);
       setUser(res.data);
     });
   });

@@ -17,13 +17,24 @@ import { instance } from "../axiosInstance";
 
 export default function MainPage() {
   const [posts, setPosts] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [activeTag, setActiveTag] = useState("");
 
   useEffect(() => {
     instance.get("/posts").then((res) => {
       console.log(res.data);
       setPosts(res.data.posts);
     });
+
+    instance.get("/posts/tags").then((res) => {
+      console.log(res.data);
+      setTags(res.data.slice(0, 18));
+    });
   }, []);
+
+  const selectTag = (tag) => {
+    setActiveTag(tag);
+  };
 
   return (
     <>
@@ -41,77 +52,29 @@ export default function MainPage() {
             <Card>
               <Flex direction={"column"} gap={"4"}>
                 <Heading size={"3"}> Filter By:</Heading>
-                <Grid columns="4" gap="3" rows="repeat(4, auto)">
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
-                  <Button size={"1"} variant="outline">
-                    History
-                  </Button>
+                <Grid columns="3" gap="3" rows="repeat(auto, auto)">
+                  {tags.map((tag) => (
+                    <Button
+                      key={tag.slug}
+                      size={"1"}
+                      variant={activeTag === tag.slug ? "classic" : "outline"}
+                      onClick={() => {
+                        selectTag(tag.slug);
+                      }}
+                    >
+                      {tag.name}
+                    </Button>
+                  ))}
                 </Grid>
                 <Heading size={"3"}> Sort By:</Heading>
 
-                <Select.Root size="1" defaultValue="apple">
+                <Select.Root size="1" defaultValue="1">
                   <Select.Trigger />
                   <Select.Content>
-                    <Select.Item value="apple">Apple</Select.Item>
-                    <Select.Item value="orange">Orange</Select.Item>
+                    <Select.Item value="1">Default</Select.Item>
+                    <Select.Item value="2">Title ↑</Select.Item>
+                    <Select.Item value="3">Title ↓</Select.Item>
+                    <Select.Item value="4">Views</Select.Item>
                   </Select.Content>
                 </Select.Root>
 
