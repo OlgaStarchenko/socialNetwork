@@ -12,16 +12,34 @@ import {
 import Header from "../components/Header";
 import PostList from "../components/PostList";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { instance } from "../axiosInstance";
+import { sortValues } from "../utils/constants";
+import _debounce from "lodash/debounce";
+import axios from "axios";
 
 export default function MainPage() {
   const [posts, setPosts] = useState([]);
   const [tags, setTags] = useState([]);
   const [activeTag, setActiveTag] = useState("");
+  const [selectedSort, setSelectedSort] = useState("1");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    instance.get("/posts").then((res) => {
+    let URL = "/posts";
+    if (activeTag) {
+      URL += `/tag/${activeTag}`;
+    }
+    if (selectedSort) {
+      URL += `?sortBy=${sortValues[selectedSort].sortBy}&order=${sortValues[selectedSort].order}`;
+    }
+    if (search.trim()) {
+      URL = `/posts/search?q=${search}`;
+    }
+
+    console.log(URL);
+
+    instance.get(URL).then((res) => {
       console.log(res.data);
       setPosts(res.data.posts);
     });
@@ -30,17 +48,40 @@ export default function MainPage() {
       console.log(res.data);
       setTags(res.data.slice(0, 18));
     });
-  }, []);
+  }, [activeTag, selectedSort, search]);
 
   const selectTag = (tag) => {
     setActiveTag(tag);
   };
 
+  const selectSort = (value) => {
+    setSelectedSort(value);
+  };
+
+  const handleDebounceFn = (inputValue) => {
+    axios
+      .post("/endpoint", {
+        value: inputValue,
+      })
+      .then((res) => {
+        console.log(res.data);
+      });
+  };
+
+  const debounceFn = useCallback(_debounce(handleDebounceFn, 1000), []);
+
   return (
     <>
       <Header />
       <Container size={"3"} mt={"8"}>
-        <TextField.Root placeholder="Search the docs…" size={"3"}>
+        <TextField.Root
+          placeholder="Search the docs…"
+          size={"3"}
+          value={search}
+          onChange={({ target }) => {
+            setSearch(target.value);
+          }}
+        >
           <TextField.Slot>
             <MagnifyingGlassIcon height="16" width="16" />
           </TextField.Slot>
@@ -68,7 +109,12 @@ export default function MainPage() {
                 </Grid>
                 <Heading size={"3"}> Sort By:</Heading>
 
-                <Select.Root size="1" defaultValue="1">
+                <Select.Root
+                  size="1"
+                  defaultValue="1"
+                  value={selectedSort}
+                  onValueChange={selectSort}
+                >
                   <Select.Trigger />
                   <Select.Content>
                     <Select.Item value="1">Default</Select.Item>
