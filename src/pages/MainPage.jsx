@@ -12,18 +12,24 @@ import {
 import Header from "../components/Header";
 import PostList from "../components/PostList";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { instance } from "../axiosInstance";
 import { sortValues } from "../utils/constants";
 import _debounce from "lodash/debounce";
-import axios from "axios";
 
-export default function MainPage() {
+export default function MainPage({ theme, changeTheme }) {
   const [posts, setPosts] = useState([]);
   const [tags, setTags] = useState([]);
   const [activeTag, setActiveTag] = useState("");
   const [selectedSort, setSelectedSort] = useState("1");
   const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+
+  const handleDebounceFn = (inputValue) => {
+    setSearch(inputValue);
+  };
+
+  const debounceFn = useMemo(() => _debounce(handleDebounceFn, 1000), []);
 
   useEffect(() => {
     let URL = "/posts";
@@ -50,6 +56,12 @@ export default function MainPage() {
     });
   }, [activeTag, selectedSort, search]);
 
+  useEffect(() => {
+    return () => {
+      debounceFn.cancel();
+    };
+  }, [debounceFn]);
+
   const selectTag = (tag) => {
     setActiveTag(tag);
   };
@@ -58,28 +70,25 @@ export default function MainPage() {
     setSelectedSort(value);
   };
 
-  const handleDebounceFn = (inputValue) => {
-    axios
-      .post("/endpoint", {
-        value: inputValue,
-      })
-      .then((res) => {
-        console.log(res.data);
-      });
+  const clearSortingAndFiltering = () => {
+    setActiveTag("");
+    setSelectedSort("1");
   };
 
-  const debounceFn = useCallback(_debounce(handleDebounceFn, 1000), []);
+  console.log("searchInput", searchInput);
+  console.log("search", search);
 
   return (
     <>
-      <Header />
+      <Header theme={theme} changeTheme={changeTheme} />
       <Container size={"3"} mt={"8"}>
         <TextField.Root
           placeholder="Search the docs…"
           size={"3"}
-          value={search}
+          value={searchInput}
           onChange={({ target }) => {
-            setSearch(target.value);
+            setSearchInput(target.value);
+            debounceFn(target.value);
           }}
         >
           <TextField.Slot>
@@ -88,7 +97,10 @@ export default function MainPage() {
         </TextField.Root>
 
         <Flex gap={"3"} mt={"3"}>
-          <PostList posts={posts} />
+          <Flex direction="column">
+            <PostList posts={posts} />
+          </Flex>
+
           <Box minWidth={"250px"}>
             <Card>
               <Flex direction={"column"} gap={"4"}>
@@ -124,7 +136,7 @@ export default function MainPage() {
                   </Select.Content>
                 </Select.Root>
 
-                <Button>Clear</Button>
+                <Button onClick={clearSortingAndFiltering}>Clear</Button>
               </Flex>
             </Card>
           </Box>

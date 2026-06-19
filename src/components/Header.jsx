@@ -1,8 +1,8 @@
-import { GlobeIcon, SunIcon } from "@radix-ui/react-icons";
+import { GlobeIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { Card, Flex, Heading, IconButton, Text } from "@radix-ui/themes";
 import { Link } from "react-router";
 
-export default function Header() {
+export default function Header({ theme, changeTheme }) {
   return (
     <header>
       <Card>
@@ -16,8 +16,8 @@ export default function Header() {
             <Link style={{ color: "initial", textDecoration: "underline" }}>
               <Text>Sign In</Text>
             </Link>
-            <IconButton>
-              <SunIcon />
+            <IconButton onClick={changeTheme}>
+              {theme === "dark" ? <SunIcon /> : <MoonIcon />}
             </IconButton>
           </Flex>
         </Flex>
