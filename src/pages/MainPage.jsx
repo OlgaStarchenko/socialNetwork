@@ -24,37 +24,44 @@ export default function MainPage({ theme, changeTheme }) {
   const [selectedSort, setSelectedSort] = useState("1");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(1);
 
   const handleDebounceFn = (inputValue) => {
+    setPage(1);
     setSearch(inputValue);
   };
 
   const debounceFn = useMemo(() => _debounce(handleDebounceFn, 1000), []);
 
   useEffect(() => {
-    let URL = "/posts";
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    let URL = `/posts?limit=${limit}&skip=${skip}`;
     if (activeTag) {
-      URL += `/tag/${activeTag}`;
+      URL = `/posts/tag/${activeTag}?limit=${limit}&skip=${skip}`;
     }
     if (selectedSort) {
-      URL += `?sortBy=${sortValues[selectedSort].sortBy}&order=${sortValues[selectedSort].order}`;
+      URL += `&sortBy=${sortValues[selectedSort].sortBy}`;
+      URL += `&order=${sortValues[selectedSort].order}`;
     }
     if (search.trim()) {
-      URL = `/posts/search?q=${search}`;
+      URL = `/posts/search?q=${search}&limit=${limit}&skip=${skip}`;
     }
-
     console.log(URL);
 
     instance.get(URL).then((res) => {
-      console.log(res.data);
       setPosts(res.data.posts);
+
+      setPageCount(Math.ceil(res.data.total / limit));
     });
 
     instance.get("/posts/tags").then((res) => {
       console.log(res.data);
       setTags(res.data.slice(0, 18));
     });
-  }, [activeTag, selectedSort, search]);
+  }, [activeTag, selectedSort, search, page]);
 
   useEffect(() => {
     return () => {
@@ -63,10 +70,12 @@ export default function MainPage({ theme, changeTheme }) {
   }, [debounceFn]);
 
   const selectTag = (tag) => {
+    setPage(1);
     setActiveTag(tag);
   };
 
   const selectSort = (value) => {
+    setPage(1);
     setSelectedSort(value);
   };
 
@@ -140,6 +149,39 @@ export default function MainPage({ theme, changeTheme }) {
               </Flex>
             </Card>
           </Box>
+        </Flex>
+        <Flex gap="2" mt="4" justify="center">
+          <Button
+            disabled={page === 1}
+            onClick={() => {
+              setPage(page - 1);
+            }}
+          >
+            Назад
+          </Button>
+
+          <Flex gap="2" wrap="wrap">
+            {[...Array(pageCount)].map((_, index) => (
+              <Button
+                size="1"
+                key={index}
+                variant={page === index + 1 ? "solid" : "soft"}
+                onClick={() => setPage(index + 1)}
+              >
+                {" "}
+                {index + 1}{" "}
+              </Button>
+            ))}
+          </Flex>
+
+          <Button
+            disabled={page === pageCount}
+            onClick={() => {
+              setPage(page + 1);
+            }}
+          >
+            Вперед
+          </Button>
         </Flex>
       </Container>
     </>
