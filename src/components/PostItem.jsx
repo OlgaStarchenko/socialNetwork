@@ -22,6 +22,7 @@ export default function PostItem({ post }) {
   });
 
   const [comments, setComments] = useState([]);
+  const [isCommentsVisible, setIsCommentsVisible] = useState(false);
 
   useEffect(() => {
     instance.get(`/users/${post.userId}`).then((res) => {
@@ -32,6 +33,10 @@ export default function PostItem({ post }) {
       setComments(res.data.comments);
     });
   });
+
+  const toggleCommentsVisibility = () => {
+    setIsCommentsVisible(!isCommentsVisible);
+  };
 
   return (
     <Box width={"100%"}>
@@ -72,7 +77,7 @@ export default function PostItem({ post }) {
               </Flex>
 
               <Flex align={"center"} gap={"1"}>
-                <ChatBubbleIcon />
+                <ChatBubbleIcon onClick={toggleCommentsVisibility} />
                 <Text> 10</Text>
               </Flex>
             </Flex>
@@ -83,27 +88,28 @@ export default function PostItem({ post }) {
             </Flex>
           </Flex>
         </Flex>
+        {isCommentsVisible && (
+          <Box>
+            <Separator size={"4"} />
+            <Flex direction={"column"} gap={"3"} mt={"2"}>
+              <Card>
+                <Flex gap="3" align="center" justify={"between"}>
+                  <Flex gap={"2"} align={"center"}>
+                    <Avatar size="1" radius="full" fallback="T" />
 
-        <Box>
-          <Separator size={"4"} />
-          <Flex direction={"column"} gap={"3"} mt={"2"}>
-            <Card>
-              <Flex gap="3" align="center" justify={"between"}>
-                <Flex gap={"2"} align={"center"}>
-                  <Avatar size="1" radius="full" fallback="T" />
-
-                  <Text as="div" size="1" color="gray">
-                    Engineering
-                  </Text>
+                    <Text as="div" size="1" color="gray">
+                      Engineering
+                    </Text>
+                  </Flex>
+                  <Flex align={"center"} gap={"1"}>
+                    <HeartIcon />
+                    <Text size={"1"}> {post.reactions.likes}</Text>
+                  </Flex>
                 </Flex>
-                <Flex align={"center"} gap={"1"}>
-                  <HeartIcon />
-                  <Text size={"1"}> {post.reactions.likes}</Text>
-                </Flex>
-              </Flex>
-            </Card>
-          </Flex>
-        </Box>
+              </Card>
+            </Flex>
+          </Box>
+        )}
       </Card>
     </Box>
   );
