@@ -21,9 +21,15 @@ export default function PostItem({ post }) {
     image: "",
   });
 
+  const [comments, setComments] = useState([]);
+
   useEffect(() => {
     instance.get(`/users/${post.userId}`).then((res) => {
       setUser(res.data);
+    });
+
+    instance.get(`/posts/${post.userId}/comments`).then((res) => {
+      setComments(res.data.comments);
     });
   });
 
@@ -58,7 +64,7 @@ export default function PostItem({ post }) {
             <Text>{post.body}</Text>
           </Flex>
           <Separator size={"4"} />
-          <Flex justify={"between"}>
+          <Flex justify={"between"} mb={"2"}>
             <Flex gap={"4"}>
               <Flex align={"center"} gap={"1"}>
                 <HeartIcon />
@@ -77,6 +83,27 @@ export default function PostItem({ post }) {
             </Flex>
           </Flex>
         </Flex>
+
+        <Box>
+          <Separator size={"4"} />
+          <Flex direction={"column"} gap={"3"} mt={"2"}>
+            <Card>
+              <Flex gap="3" align="center" justify={"between"}>
+                <Flex gap={"2"} align={"center"}>
+                  <Avatar size="1" radius="full" fallback="T" />
+
+                  <Text as="div" size="1" color="gray">
+                    Engineering
+                  </Text>
+                </Flex>
+                <Flex align={"center"} gap={"1"}>
+                  <HeartIcon />
+                  <Text size={"1"}> {post.reactions.likes}</Text>
+                </Flex>
+              </Flex>
+            </Card>
+          </Flex>
+        </Box>
       </Card>
     </Box>
   );

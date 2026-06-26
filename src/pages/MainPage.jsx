@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from "react";
 import { instance } from "../axiosInstance";
 import { sortValues } from "../utils/constants";
 import _debounce from "lodash/debounce";
+import Pagination from "../components/Pagination";
 
 export default function MainPage({ theme, changeTheme }) {
   const [posts, setPosts] = useState([]);
@@ -150,39 +151,8 @@ export default function MainPage({ theme, changeTheme }) {
             </Card>
           </Box>
         </Flex>
-        <Flex gap="2" mt="4" justify="center">
-          <Button
-            disabled={page === 1}
-            onClick={() => {
-              setPage(page - 1);
-            }}
-          >
-            Назад
-          </Button>
 
-          <Flex gap="2" wrap="wrap">
-            {[...Array(pageCount)].map((_, index) => (
-              <Button
-                size="1"
-                key={index}
-                variant={page === index + 1 ? "solid" : "soft"}
-                onClick={() => setPage(index + 1)}
-              >
-                {" "}
-                {index + 1}{" "}
-              </Button>
-            ))}
-          </Flex>
-
-          <Button
-            disabled={page === pageCount}
-            onClick={() => {
-              setPage(page + 1);
-            }}
-          >
-            Вперед
-          </Button>
-        </Flex>
+        <Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
       </Container>
     </>
   );
