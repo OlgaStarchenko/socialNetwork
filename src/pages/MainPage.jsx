@@ -93,7 +93,7 @@ export default function MainPage({ theme, changeTheme }) {
       <Header theme={theme} changeTheme={changeTheme} />
       <Container size={"3"} mt={"8"}>
         <TextField.Root
-          placeholder="Search the docs…"
+          placeholder="Search the posts…"
           size={"3"}
           value={searchInput}
           onChange={({ target }) => {

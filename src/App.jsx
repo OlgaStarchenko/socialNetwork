@@ -5,6 +5,7 @@ import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { Box, Theme } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
+import PersonPage from "./pages/PersonPage";
 
 export function App() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -29,6 +30,10 @@ export function App() {
     {
       path: "/profile",
       element: <ProfilePage />,
+    },
+    {
+      path: "/person/:id",
+      element: <PersonPage theme={theme} changeTheme={changeTheme} />,
     },
     {
       path: "*",
