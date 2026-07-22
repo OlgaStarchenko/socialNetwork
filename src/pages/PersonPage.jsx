@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { instance } from "../axiosInstance";
 import PostList from "../components/PostList";
 
-export default function PersonPage({ theme, changeTheme }) {
+export default function PersonPage() {
   const { id } = useParams();
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
@@ -30,7 +30,7 @@ export default function PersonPage({ theme, changeTheme }) {
 
   return (
     <>
-      <Header theme={theme} changeTheme={changeTheme} />
+      <Header />
       <Container size={"3"} mt={"8"}>
         <Heading mb={"5"}>Person Info</Heading>
         <Card>

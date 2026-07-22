@@ -18,7 +18,7 @@ import { sortValues } from "../utils/constants";
 import _debounce from "lodash/debounce";
 import Pagination from "../components/Pagination";
 
-export default function MainPage({ theme, changeTheme }) {
+export default function MainPage() {
   const [posts, setPosts] = useState([]);
   const [tags, setTags] = useState([]);
   const [activeTag, setActiveTag] = useState("");
@@ -90,7 +90,7 @@ export default function MainPage({ theme, changeTheme }) {
 
   return (
     <>
-      <Header theme={theme} changeTheme={changeTheme} />
+      <Header />
       <Container size={"3"} mt={"8"}>
         <TextField.Root
           placeholder="Search the posts…"

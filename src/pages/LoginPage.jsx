@@ -1,10 +1,28 @@
 import { Button, Card, Flex, Heading, Text, TextField } from "@radix-ui/themes";
+
 import { useNavigate } from "react-router";
+import { instance, setAccessToken } from "../axiosInstance";
+import { useState } from "react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-
   const goHome = () => navigate("/");
+
+  const [login, setLogin] = useState("emilys");
+  const [password, setPassword] = useState("emilyspass");
+
+  const handleLogin = () => {
+    instance
+      .post("/user/login", { username: login, password: password })
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.accessToken) {
+          setAccessToken(res.data.accessToken);
+          goHome();
+        }
+      });
+  };
+
   return (
     <Flex
       direction={"column"}
@@ -21,13 +39,32 @@ export default function LoginPage() {
           <Flex direction={"column"} gap={"4"} minWidth={"400px"}>
             <Flex direction={"column"} gap={"2"}>
               <Text>Login:</Text>
-              <TextField.Root placeholder="Username" />
+              <TextField.Root
+                placeholder="Username"
+                value={login}
+                type="text"
+                onChange={({ target }) => {
+                  setLogin(target.value);
+                }}
+              />
             </Flex>
             <Flex direction={"column"} gap={"2"}>
               <Text>Password:</Text>
-              <TextField.Root placeholder="Password" type="password" />
+              <TextField.Root
+                placeholder="Password"
+                type="password"
+                value={password}
+                onChange={({ target }) => {
+                  setPassword(target.value);
+                }}
+              />
             </Flex>
-            <Button>Sign In</Button>
+            <Button
+              disabled={login.trim() === "" || password.trim() === ""}
+              onClick={handleLogin}
+            >
+              Sign In
+            </Button>
           </Flex>
         </Card>
       </Card>

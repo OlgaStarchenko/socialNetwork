@@ -4,24 +4,26 @@ import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { Box, Theme } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PersonPage from "./pages/PersonPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useSelector } from "react-redux";
 
 export function App() {
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const { currentTheme } = useSelector((state) => state.theme);
 
   useEffect(() => {
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const changeTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
+    localStorage.setItem("theme", currentTheme);
+  }, [currentTheme]);
 
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <MainPage theme={theme} changeTheme={changeTheme} />,
+      element: (
+        <ProtectedRoute>
+          <MainPage />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/login",
@@ -29,11 +31,19 @@ export function App() {
     },
     {
       path: "/profile",
-      element: <ProfilePage />,
+      element: (
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/person/:id",
-      element: <PersonPage theme={theme} changeTheme={changeTheme} />,
+      element: (
+        <ProtectedRoute>
+          <PersonPage />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "*",
@@ -48,10 +58,9 @@ export function App() {
         grayColor="slate"
         panelBackground="solid"
         radius="large"
-        appearance={theme}
+        appearance={currentTheme}
       >
         <Box p={"3"}>
-          {" "}
           <RouterProvider router={router} />
         </Box>
       </Theme>
