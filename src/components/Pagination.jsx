@@ -1,6 +1,11 @@
 import { Button, Flex, Text } from "@radix-ui/themes";
+import { useDispatch, useSelector } from "react-redux";
+import { changePage } from "../store/slice/filterSlice";
 
-export default function Pagination({ page, pageCount, onPageChange }) {
+export default function Pagination({ pageCount }) {
+  const page = useSelector((state) => state.filter.page);
+  const dispatch = useDispatch();
+
   const getPages = () => {
     const pages = [];
 
@@ -29,7 +34,10 @@ export default function Pagination({ page, pageCount, onPageChange }) {
 
   return (
     <Flex gap="2" mt="4" justify="center" align="center">
-      <Button disabled={page === 1} onClick={() => onPageChange(page - 1)}>
+      <Button
+        disabled={page === 1}
+        onClick={() => dispatch(changePage(page - 1))}
+      >
         Назад
       </Button>
 
@@ -41,7 +49,7 @@ export default function Pagination({ page, pageCount, onPageChange }) {
             key={`${item}-${index}`}
             size="1"
             variant={page === item ? "solid" : "soft"}
-            onClick={() => onPageChange(item)}
+            onClick={() => dispatch(changePage(item))}
           >
             {item}
           </Button>
@@ -50,7 +58,7 @@ export default function Pagination({ page, pageCount, onPageChange }) {
 
       <Button
         disabled={page === pageCount}
-        onClick={() => onPageChange(page + 1)}
+        onClick={() => dispatch(changePage(page + 1))}
       >
         Вперед
       </Button>

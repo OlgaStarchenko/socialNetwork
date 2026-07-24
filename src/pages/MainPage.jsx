@@ -17,20 +17,30 @@ import { instance } from "../axiosInstance";
 import { sortValues } from "../utils/constants";
 import _debounce from "lodash/debounce";
 import Pagination from "../components/Pagination";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  changeActiveTag,
+  changeSearch,
+  changeSelectedSort,
+  clearAllFilters,
+} from "../store/slice/filterSlice";
 
 export default function MainPage() {
   const [posts, setPosts] = useState([]);
   const [tags, setTags] = useState([]);
-  const [activeTag, setActiveTag] = useState("");
-  const [selectedSort, setSelectedSort] = useState("1");
-  const [search, setSearch] = useState("");
+
   const [searchInput, setSearchInput] = useState("");
-  const [page, setPage] = useState(1);
+
   const [pageCount, setPageCount] = useState(1);
 
+  const { activeTag, selectedSort, page, search } = useSelector(
+    (state) => state.filter,
+  );
+
+  const dispatch = useDispatch();
+
   const handleDebounceFn = (inputValue) => {
-    setPage(1);
-    setSearch(inputValue);
+    dispatch(changeSearch(inputValue));
   };
 
   const debounceFn = useMemo(() => _debounce(handleDebounceFn, 1000), []);
@@ -50,7 +60,6 @@ export default function MainPage() {
     if (search.trim()) {
       URL = `/posts/search?q=${search}&limit=${limit}&skip=${skip}`;
     }
-    console.log(URL);
 
     instance.get(URL).then((res) => {
       setPosts(res.data.posts);
@@ -69,24 +78,6 @@ export default function MainPage() {
       debounceFn.cancel();
     };
   }, [debounceFn]);
-
-  const selectTag = (tag) => {
-    setPage(1);
-    setActiveTag(tag);
-  };
-
-  const selectSort = (value) => {
-    setPage(1);
-    setSelectedSort(value);
-  };
-
-  const clearSortingAndFiltering = () => {
-    setActiveTag("");
-    setSelectedSort("1");
-  };
-
-  console.log("searchInput", searchInput);
-  console.log("search", search);
 
   return (
     <>
@@ -122,7 +113,7 @@ export default function MainPage() {
                       size={"1"}
                       variant={activeTag === tag.slug ? "classic" : "outline"}
                       onClick={() => {
-                        selectTag(tag.slug);
+                        dispatch(changeActiveTag(tag.slug));
                       }}
                     >
                       {tag.name}
@@ -135,7 +126,7 @@ export default function MainPage() {
                   size="1"
                   defaultValue="1"
                   value={selectedSort}
-                  onValueChange={selectSort}
+                  onValueChange={(value) => dispatch(changeSelectedSort(value))}
                 >
                   <Select.Trigger />
                   <Select.Content>
@@ -146,13 +137,20 @@ export default function MainPage() {
                   </Select.Content>
                 </Select.Root>
 
-                <Button onClick={clearSortingAndFiltering}>Clear</Button>
+                <Button
+                  onClick={() => {
+                    dispatch(clearAllFilters());
+                    setSearchInput("");
+                  }}
+                >
+                  Clear
+                </Button>
               </Flex>
             </Card>
           </Box>
         </Flex>
 
-        <Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
+        <Pagination pageCount={pageCount} />
       </Container>
     </>
   );
