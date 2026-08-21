@@ -1,7 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage";
-import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { Box, Theme } from "@radix-ui/themes";
 import { useEffect } from "react";
@@ -29,14 +28,7 @@ export function App() {
       path: "/login",
       element: <LoginPage />,
     },
-    {
-      path: "/profile",
-      element: (
-        <ProtectedRoute>
-          <ProfilePage />
-        </ProtectedRoute>
-      ),
-    },
+
     {
       path: "/person/:id",
       element: (

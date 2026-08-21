@@ -13,8 +13,6 @@ import Header from "../components/Header";
 import PostList from "../components/PostList";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useEffect, useMemo, useState } from "react";
-import { instance } from "../axiosInstance";
-import { sortValues } from "../utils/constants";
 import _debounce from "lodash/debounce";
 import Pagination from "../components/Pagination";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,18 +22,18 @@ import {
   changeSelectedSort,
   clearAllFilters,
 } from "../store/slice/filterSlice";
+import { useGetPostsListQuery, useGetTagsListQuery } from "../api/postsApi";
 
 export default function MainPage() {
-  const [posts, setPosts] = useState([]);
-  const [tags, setTags] = useState([]);
+  const { data } = useGetPostsListQuery();
+  const { data: dataTags } = useGetTagsListQuery();
+  const posts = data ? data.posts : [];
+  const pageCount = data ? data.pageCount : 1;
+  const tags = dataTags ? dataTags.slice(0, 18) : [];
 
   const [searchInput, setSearchInput] = useState("");
 
-  const [pageCount, setPageCount] = useState(1);
-
-  const { activeTag, selectedSort, page, search } = useSelector(
-    (state) => state.filter,
-  );
+  const { activeTag, selectedSort } = useSelector((state) => state.filter);
 
   const dispatch = useDispatch();
 
@@ -44,34 +42,6 @@ export default function MainPage() {
   };
 
   const debounceFn = useMemo(() => _debounce(handleDebounceFn, 1000), []);
-
-  useEffect(() => {
-    const limit = 10;
-    const skip = (page - 1) * limit;
-
-    let URL = `/posts?limit=${limit}&skip=${skip}`;
-    if (activeTag) {
-      URL = `/posts/tag/${activeTag}?limit=${limit}&skip=${skip}`;
-    }
-    if (selectedSort) {
-      URL += `&sortBy=${sortValues[selectedSort].sortBy}`;
-      URL += `&order=${sortValues[selectedSort].order}`;
-    }
-    if (search.trim()) {
-      URL = `/posts/search?q=${search}&limit=${limit}&skip=${skip}`;
-    }
-
-    instance.get(URL).then((res) => {
-      setPosts(res.data.posts);
-
-      setPageCount(Math.ceil(res.data.total / limit));
-    });
-
-    instance.get("/posts/tags").then((res) => {
-      console.log(res.data);
-      setTags(res.data.slice(0, 18));
-    });
-  }, [activeTag, selectedSort, search, page]);
 
   useEffect(() => {
     return () => {
