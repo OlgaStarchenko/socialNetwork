@@ -5,8 +5,7 @@ export const postsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getPostsList: build.query({
       async queryFn(arg, api, extraOptions, baseQuery) {
-        const state = api.getState();
-        const { page, activeTag, selectedSort, search } = state.filter;
+        const { page, activeTag, selectedSort, search } = arg;
 
         const limit = 10;
         const skip = (page - 1) * limit;
@@ -23,9 +22,12 @@ export const postsApi = baseApi.injectEndpoints({
           URL = `/posts/search?q=${search}&limit=${limit}&skip=${skip}`;
         }
         const result = await baseQuery(URL);
+
         return {
-          posts: result.posts,
-          pageCount: Math.ceil(result.total / limit),
+          data: {
+            posts: result.data.posts,
+            pageCount: Math.ceil(result.data.total / limit),
+          },
         };
       },
     }),
@@ -35,7 +37,17 @@ export const postsApi = baseApi.injectEndpoints({
         url: "/posts/tags",
       }),
     }),
+
+    getCommentsList: build.query({
+      query: (id) => ({
+        url: `/posts/${id}/comments`,
+      }),
+    }),
   }),
 });
 
-export const { useGetPostsListQuery, useGetTagsListQuery } = postsApi;
+export const {
+  useGetPostsListQuery,
+  useGetTagsListQuery,
+  useGetCommentsListQuery,
+} = postsApi;

@@ -25,15 +25,22 @@ import {
 import { useGetPostsListQuery, useGetTagsListQuery } from "../api/postsApi";
 
 export default function MainPage() {
-  const { data } = useGetPostsListQuery();
+  const { page, activeTag, selectedSort, search } = useSelector(
+    (state) => state.filter,
+  );
+
+  const { data } = useGetPostsListQuery({
+    page,
+    activeTag,
+    selectedSort,
+    search,
+  });
   const { data: dataTags } = useGetTagsListQuery();
   const posts = data ? data.posts : [];
   const pageCount = data ? data.pageCount : 1;
   const tags = dataTags ? dataTags.slice(0, 18) : [];
 
   const [searchInput, setSearchInput] = useState("");
-
-  const { activeTag, selectedSort } = useSelector((state) => state.filter);
 
   const dispatch = useDispatch();
 

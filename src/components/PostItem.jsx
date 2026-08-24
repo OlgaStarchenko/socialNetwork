@@ -15,40 +15,33 @@ import {
   Separator,
   Text,
 } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
-import { instance } from "../axiosInstance";
+import { useState } from "react";
+
 import { Link } from "react-router";
+import { useGetCommentsListQuery } from "../api/postsApi";
+import { useGetUserByIdQuery } from "../api/usersApi";
 
 export default function PostItem({ post }) {
-  const [user, setUser] = useState({
-    id: "",
-    firstName: "",
-    lastName: "",
-    username: "",
-    image: "",
-  });
-  const [comments, setComments] = useState([]);
-
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
 
-  useEffect(() => {
-    instance.get(`/users/${post.userId}`).then((res) => {
-      setUser(res.data);
-    });
-  }, [post.userId]);
+  const { data } = useGetCommentsListQuery(post.id, {
+    skip: !isCommentsVisible || !post.id,
+  });
 
-  useEffect(() => {
-    if (!isCommentsVisible) {
-      return;
-    }
-    if (comments.length) {
-      return;
-    }
+  const { data: dataUser } = useGetUserByIdQuery(post.userId, {
+    skip: !post.userId,
+  });
 
-    instance.get(`/posts/${post.id}/comments`).then((res) => {
-      setComments(res.data.comments);
-    });
-  }, [isCommentsVisible, comments.length, post.id]);
+  const comments = data ? data.comments : [];
+  const user = dataUser
+    ? dataUser
+    : {
+        id: "",
+        firstName: "",
+        lastName: "",
+        username: "",
+        image: "",
+      };
 
   const toggleCommentsVisibility = () => {
     setIsCommentsVisible(!isCommentsVisible);
