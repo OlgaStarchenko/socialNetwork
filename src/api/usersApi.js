@@ -7,7 +7,13 @@ export const usersApi = baseApi.injectEndpoints({
         url: `/users/${id}`,
       }),
     }),
+
+    getUserByIdPosts: build.query({
+      query: (id) => ({
+        url: `/users/${id}/posts`,
+      }),
+    }),
   }),
 });
 
-export const { useGetUserByIdQuery } = usersApi;
+export const { useGetUserByIdQuery, useGetUserByIdPostsQuery } = usersApi;

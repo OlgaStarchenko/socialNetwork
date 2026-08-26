@@ -9,24 +9,24 @@ import {
   Heading,
   Text,
 } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
-import { instance } from "../axiosInstance";
 import PostList from "../components/PostList";
+import { useGetUserByIdQuery, useGetUserByIdPostsQuery } from "../api/usersApi";
 
 export default function PersonPage() {
   const { id } = useParams();
-  const [user, setUser] = useState({});
-  const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    if (id) {
-      instance.get(`/users/${id}`).then((res) => setUser(res.data));
-      instance
-        .get(`/users/${id}/posts`)
-        .then((res) => setPosts(res.data.posts));
-    }
-  }, [id]);
-  console.log(user);
+  const { data } = useGetUserByIdQuery(id, {
+    skip: !id,
+  });
+  const user = data ? data : {};
+
+  const { data: dataPosts } = useGetUserByIdPostsQuery(id, {
+    skip: !id,
+  });
+
+  const posts = dataPosts ? dataPosts.posts : [];
+
+  console.log(dataPosts);
 
   return (
     <>
