@@ -13,7 +13,19 @@ export const usersApi = baseApi.injectEndpoints({
         url: `/users/${id}/posts`,
       }),
     }),
+
+    login: build.mutation({
+      query: (params) => ({
+        url: "/user/login",
+        method: "POST",
+        body: params,
+      }),
+    }),
   }),
 });
 
-export const { useGetUserByIdQuery, useGetUserByIdPostsQuery } = usersApi;
+export const {
+  useGetUserByIdQuery,
+  useGetUserByIdPostsQuery,
+  useLoginMutation,
+} = usersApi;

@@ -15,7 +15,7 @@ export const setAccessToken = (newToken) => {
 
 instance.interceptors.request.use((config) => {
   if (!config.headers.Authorization && accessToken) {
-    config.headers.Authorization = `Bearer${accessToken}`;
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
   return config;

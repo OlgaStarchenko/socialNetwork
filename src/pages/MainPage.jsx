@@ -7,6 +7,7 @@ import {
   Grid,
   Heading,
   Select,
+  Skeleton,
   TextField,
 } from "@radix-ui/themes";
 import Header from "../components/Header";
@@ -29,16 +30,19 @@ export default function MainPage() {
     (state) => state.filter,
   );
 
-  const { data } = useGetPostsListQuery({
+  const { data, isLoading: isPostsLoading } = useGetPostsListQuery({
     page,
     activeTag,
     selectedSort,
     search,
   });
-  const { data: dataTags } = useGetTagsListQuery();
+  const { data: dataTags, isLoading: isTagsLoading } = useGetTagsListQuery();
   const posts = data ? data.posts : [];
   const pageCount = data ? data.pageCount : 1;
   const tags = dataTags ? dataTags.slice(0, 18) : [];
+  const skeletonTags = [...new Array(18)].map((_, index) => (
+    <Skeleton key={index} width={"100%"} height={"24px"} />
+  ));
 
   const [searchInput, setSearchInput] = useState("");
 
@@ -75,8 +79,8 @@ export default function MainPage() {
         </TextField.Root>
 
         <Flex gap={"3"} mt={"3"}>
-          <Flex direction="column">
-            <PostList posts={posts} />
+          <Flex direction="column" flexGrow={"1"}>
+            <PostList posts={posts} isLoading={isPostsLoading} />
           </Flex>
 
           <Box minWidth={"250px"}>
@@ -84,18 +88,22 @@ export default function MainPage() {
               <Flex direction={"column"} gap={"4"}>
                 <Heading size={"3"}> Filter By:</Heading>
                 <Grid columns="3" gap="3" rows="repeat(auto, auto)">
-                  {tags.map((tag) => (
-                    <Button
-                      key={tag.slug}
-                      size={"1"}
-                      variant={activeTag === tag.slug ? "classic" : "outline"}
-                      onClick={() => {
-                        dispatch(changeActiveTag(tag.slug));
-                      }}
-                    >
-                      {tag.name}
-                    </Button>
-                  ))}
+                  {isTagsLoading
+                    ? skeletonTags
+                    : tags.map((tag) => (
+                        <Button
+                          key={tag.slug}
+                          size={"1"}
+                          variant={
+                            activeTag === tag.slug ? "classic" : "outline"
+                          }
+                          onClick={() => {
+                            dispatch(changeActiveTag(tag.slug));
+                          }}
+                        >
+                          {tag.name}
+                        </Button>
+                      ))}
                 </Grid>
                 <Heading size={"3"}> Sort By:</Heading>
 

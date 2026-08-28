@@ -1,8 +1,9 @@
 import { Button, Card, Flex, Heading, Text, TextField } from "@radix-ui/themes";
 
 import { useNavigate } from "react-router";
-import { instance, setAccessToken } from "../axiosInstance";
+import { setAccessToken } from "../axiosInstance";
 import { useState } from "react";
+import { useLoginMutation } from "../api/usersApi";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -10,17 +11,18 @@ export default function LoginPage() {
 
   const [login, setLogin] = useState("emilys");
   const [password, setPassword] = useState("emilyspass");
+  const [handleLogin] = useLoginMutation();
 
-  const handleLogin = () => {
-    instance
-      .post("/user/login", { username: login, password: password })
-      .then((res) => {
-        console.log(res.data);
-        if (res.data.accessToken) {
-          setAccessToken(res.data.accessToken);
-          goHome();
-        }
-      });
+  const handleSignIn = async () => {
+    const response = await handleLogin({
+      username: login,
+      password: password,
+    });
+
+    if (response.data.accessToken) {
+      setAccessToken(response.data.accessToken);
+      goHome();
+    }
   };
 
   return (
@@ -61,7 +63,7 @@ export default function LoginPage() {
             </Flex>
             <Button
               disabled={login.trim() === "" || password.trim() === ""}
-              onClick={handleLogin}
+              onClick={handleSignIn}
             >
               Sign In
             </Button>
