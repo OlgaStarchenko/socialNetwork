@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { Navigate, useParams } from "react-router";
 import Header from "../components/Header";
 import {
   Avatar,
@@ -16,21 +16,28 @@ import { useGetUserByIdQuery, useGetUserByIdPostsQuery } from "../api/usersApi";
 export default function PersonPage() {
   const { id } = useParams();
 
-  const { data, isLoading: isLoadingUser } = useGetUserByIdQuery(id, {
+  const {
+    data,
+    isLoading: isLoadingUser,
+    error: errorUser,
+  } = useGetUserByIdQuery(id, {
     skip: !id,
   });
   const user = data ? data : {};
 
-  const { data: dataPosts, isLoading: isLoadingPosts } =
-    useGetUserByIdPostsQuery(id, {
-      skip: !id,
-    });
+  const {
+    data: dataPosts,
+    isLoading: isLoadingPosts,
+    error: errorPosts,
+  } = useGetUserByIdPostsQuery(id, {
+    skip: !id,
+  });
 
   const posts = dataPosts ? dataPosts.posts : [];
 
-  const skeletonsPosts = [...new Array(3)].map((_, index) => (
-    <Skeleton key={index} width="100%" height="250px" />
-  ));
+  if (errorUser) {
+    return <Navigate to={"/error"} />;
+  }
 
   return (
     <>
@@ -139,7 +146,11 @@ export default function PersonPage() {
         </Card>
         <Heading my={"5"}>Person Posts</Heading>
         <Flex direction="column" gap={"4"}>
-          {isLoadingPosts ? skeletonsPosts : <PostList posts={posts} />}
+          <PostList
+            posts={posts}
+            isLoading={isLoadingPosts}
+            error={errorPosts}
+          />
         </Flex>
       </Container>
     </>

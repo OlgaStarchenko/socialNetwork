@@ -1,10 +1,15 @@
 import { Flex, Skeleton } from "@radix-ui/themes";
 import PostItem from "./PostItem";
 
-export default function PostList({ posts, isLoading }) {
+import ErrorMessage from "./ErrorMessage";
+
+export default function PostList({ posts, isLoading, error }) {
   const skeletons = [...new Array(3)].map((_, index) => (
     <Skeleton key={index} display={"block"} width="100%" height="250px" />
   ));
+  if (error) {
+    return <ErrorMessage error={error} />;
+  }
   return (
     <Flex direction={"column"} gap={"3"} flexGrow={"1"} minWidth={"0"}>
       {isLoading

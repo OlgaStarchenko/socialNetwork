@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { setAccessToken } from "../axiosInstance";
 import { useState } from "react";
 import { useLoginMutation } from "../api/usersApi";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function LoginPage() {
 
   const [login, setLogin] = useState("emilys");
   const [password, setPassword] = useState("emilyspass");
-  const [handleLogin] = useLoginMutation();
+  const [handleLogin, { isLoading, error }] = useLoginMutation();
 
   const handleSignIn = async () => {
     const response = await handleLogin({
@@ -62,11 +63,15 @@ export default function LoginPage() {
               />
             </Flex>
             <Button
-              disabled={login.trim() === "" || password.trim() === ""}
+              disabled={
+                login.trim() === "" || password.trim() === "" || isLoading
+              }
               onClick={handleSignIn}
+              loading={isLoading}
             >
               Sign In
             </Button>
+            {error && <ErrorMessage error={error} />}
           </Flex>
         </Card>
       </Card>

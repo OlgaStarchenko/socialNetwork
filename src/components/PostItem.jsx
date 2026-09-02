@@ -20,17 +20,21 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { useGetCommentsListQuery } from "../api/postsApi";
 import { useGetUserByIdQuery } from "../api/usersApi";
+import ErrorMessage from "./ErrorMessage";
 
 export default function PostItem({ post }) {
   const [isCommentsVisible, setIsCommentsVisible] = useState(false);
 
-  const { data } = useGetCommentsListQuery(post.id, {
+  const { data, error } = useGetCommentsListQuery(post.id, {
     skip: !isCommentsVisible || !post.id,
   });
 
-  const { data: dataUser } = useGetUserByIdQuery(post.userId, {
-    skip: !post.userId,
-  });
+  const { data: dataUser, error: errorUser } = useGetUserByIdQuery(
+    post.userId,
+    {
+      skip: !post.userId,
+    },
+  );
 
   const comments = data ? data.comments : [];
   const user = dataUser
@@ -52,24 +56,33 @@ export default function PostItem({ post }) {
       <Card>
         <Flex direction={"column"} gap={"2"}>
           <Flex justify={"between"}>
-            <Link to={`/person/${user.id}`}>
-              <Flex gap="3" align="center">
-                <Avatar size="3" src={user.image} radius="full" fallback="T" />
-                <Box>
-                  <Text
-                    as="div"
-                    size="2"
-                    weight="bold"
-                    style={{ color: "initial" }}
-                  >
-                    {user.firstName} {user.lastName}
-                  </Text>
-                  <Text as="div" size="2" color="gray">
-                    {user.username}
-                  </Text>
-                </Box>
-              </Flex>
-            </Link>
+            {errorUser ? (
+              <ErrorMessage error={errorUser} />
+            ) : (
+              <Link to={`/person/${user.id}`}>
+                <Flex gap="3" align="center">
+                  <Avatar
+                    size="3"
+                    src={user.image}
+                    radius="full"
+                    fallback="T"
+                  />
+                  <Box>
+                    <Text
+                      as="div"
+                      size="2"
+                      weight="bold"
+                      style={{ color: "initial" }}
+                    >
+                      {user.firstName} {user.lastName}
+                    </Text>
+                    <Text as="div" size="2" color="gray">
+                      {user.username}
+                    </Text>
+                  </Box>
+                </Flex>
+              </Link>
+            )}
 
             <Flex gap={"2"} maxWidth={"200px"} wrap={"wrap"} justify={"end"}>
               {post.tags.map((tag, index) => (
@@ -105,7 +118,9 @@ export default function PostItem({ post }) {
             </Flex>
           </Flex>
         </Flex>
+        {isCommentsVisible && error && <ErrorMessage error={error} />}
         {isCommentsVisible &&
+          !error &&
           comments.map((comment, index) => (
             <Box key={`${comment}-${index}`}>
               <Separator size={"4"} />

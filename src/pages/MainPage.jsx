@@ -24,19 +24,28 @@ import {
   clearAllFilters,
 } from "../store/slice/filterSlice";
 import { useGetPostsListQuery, useGetTagsListQuery } from "../api/postsApi";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function MainPage() {
   const { page, activeTag, selectedSort, search } = useSelector(
     (state) => state.filter,
   );
 
-  const { data, isLoading: isPostsLoading } = useGetPostsListQuery({
+  const {
+    data,
+    isLoading: isPostsLoading,
+    error: errorPosts,
+  } = useGetPostsListQuery({
     page,
     activeTag,
     selectedSort,
     search,
   });
-  const { data: dataTags, isLoading: isTagsLoading } = useGetTagsListQuery();
+  const {
+    data: dataTags,
+    isLoading: isTagsLoading,
+    error: errorTags,
+  } = useGetTagsListQuery();
   const posts = data ? data.posts : [];
   const pageCount = data ? data.pageCount : 1;
   const tags = dataTags ? dataTags.slice(0, 18) : [];
@@ -80,31 +89,39 @@ export default function MainPage() {
 
         <Flex gap={"3"} mt={"3"}>
           <Flex direction="column" flexGrow={"1"}>
-            <PostList posts={posts} isLoading={isPostsLoading} />
+            <PostList
+              posts={posts}
+              isLoading={isPostsLoading}
+              error={errorPosts}
+            />
           </Flex>
 
           <Box minWidth={"250px"}>
             <Card>
               <Flex direction={"column"} gap={"4"}>
                 <Heading size={"3"}> Filter By:</Heading>
-                <Grid columns="3" gap="3" rows="repeat(auto, auto)">
-                  {isTagsLoading
-                    ? skeletonTags
-                    : tags.map((tag) => (
-                        <Button
-                          key={tag.slug}
-                          size={"1"}
-                          variant={
-                            activeTag === tag.slug ? "classic" : "outline"
-                          }
-                          onClick={() => {
-                            dispatch(changeActiveTag(tag.slug));
-                          }}
-                        >
-                          {tag.name}
-                        </Button>
-                      ))}
-                </Grid>
+                {errorTags ? (
+                  <ErrorMessage error={errorTags} />
+                ) : (
+                  <Grid columns="3" gap="3" rows="repeat(auto, auto)">
+                    {isTagsLoading
+                      ? skeletonTags
+                      : tags.map((tag) => (
+                          <Button
+                            key={tag.slug}
+                            size={"1"}
+                            variant={
+                              activeTag === tag.slug ? "classic" : "outline"
+                            }
+                            onClick={() => {
+                              dispatch(changeActiveTag(tag.slug));
+                            }}
+                          >
+                            {tag.name}
+                          </Button>
+                        ))}
+                  </Grid>
+                )}
                 <Heading size={"3"}> Sort By:</Heading>
 
                 <Select.Root

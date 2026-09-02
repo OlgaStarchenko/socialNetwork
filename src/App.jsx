@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import PersonPage from "./pages/PersonPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useSelector } from "react-redux";
+import ErrorPage from "./pages/ErrorPage";
 
 export function App() {
   const { currentTheme } = useSelector((state) => state.theme);
@@ -36,6 +37,10 @@ export function App() {
           <PersonPage />
         </ProtectedRoute>
       ),
+    },
+    {
+      path: "/error",
+      element: <ErrorPage />,
     },
     {
       path: "*",
